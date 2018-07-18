@@ -1,0 +1,262 @@
+body {
+	margin: 0 0 2em 0;
+	padding: 0;
+	font-family: 'Noto Sans', sans-serif;
+	background-color: #e4e7ee;
+	text-align: center;
+	letter-spacing: -0.04em;
+	color: #003e52;
+}
+
+body * {
+	box-sizing: border-box;
+}
+
+/* Hides "Powered by" footer when page is hosted */
+div[style*="9999999;"] * {
+    display: none !important;
+}
+
+img {
+	border: 0;
+}
+
+a {
+	color: inherit;
+}	
+
+button,select {
+	font-family: inherit;
+	font-size: inherit;
+	letter-spacing: inherit;
+}
+
+@media (min-width: 1400px) {
+	html { font-size: 1.15vw; }
+}
+
+@media (max-width: 600px) {
+	header { font-size: 2.5vw; }
+}
+
+@media (max-width: 500px) {
+	.suggestionsSection { font-size: 3.2vw; }
+}
+
+@media (max-height: 500px) {
+	header { font-size: 2.5vh; }
+	.suggestionsSection { font-size: 3.2vh; }
+}
+
+header {
+	background-color: #003e52;
+	color: white;
+}
+
+.gef-corporate-logo__link {
+	left: 2em;
+	top: 2em;
+	position: absolute;
+}
+.gef-corporate-logo__link img {
+	height: 4em;
+}
+
+.toggleApi {
+	position: absolute;
+	right: 0;
+	top: 0;
+	margin: 10px;
+	padding: 0.25em 1em;
+	color: white;
+	border-radius: 100px;
+	cursor: pointer;
+	display: inline-block;
+	background-color: #dc0000;
+	font-family: sans-serif;
+	letter-spacing: initial;
+	font-size: 0.8em;
+}
+.toggleApi.on {
+	background-color: rgba(255,255,255,0.25);
+	opacity: 0.5;		
+}	
+.toggleApi:after {
+	content: "API Offline";
+}		
+.toggleApi.on:after {
+	content: "API Online";
+}	
+
+#showMore {
+	font-size: inherit;
+	border: none;
+	line-height: 2;
+	padding: 0 3em;
+	border: none;
+	border-radius: 0.25em;
+	cursor: pointer;
+	color: white;
+	background-color: #003e52;
+	display: none;
+	font-family: inherit;
+}
+#showMore:hover {
+	background-color: #0072a1;
+}
+#showMore:active {
+	background-color: white;
+	color: #003e52;
+}
+
+.showMoreContainer .noBooksFound {
+	display: none;
+	font-size: 1.2em;
+}
+.showMoreContainer .noBooksFound:before {
+    content: '\f071';
+    display: block;
+    border-radius: 50%;
+    font-size: 5em;
+    opacity: 0.25;
+    line-height: 1.25;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: bold; /* Font doesn't show without this! */
+}
+
+.profileCircle {
+	margin-top: 0.1em;
+	display: inline-block;
+	font-size: 5em;
+	color: #b8d6e0;
+	width: 1.5em;
+	line-height: 1.5;
+	border-radius: 50%;
+	background-color: rgba(255,255,255,0.25);
+}
+
+
+#userList_wrapper {
+	font-size: 2em;
+	margin: 0.25em;
+}
+
+#modeList_wrapper {
+	background-color: white;
+	font-size: 1.5em;
+	margin-top: 0.5em;
+}
+
+.booksSection {
+	display: inline-block;
+	width: 100%;
+	text-align: center;
+	background-color: white;
+}
+.template.book {
+	display: none !important;
+}
+
+
+.book {
+	display: inline-block;
+	width: 13em;
+	text-align: left;
+	transition: transform 0.25s;
+	transform-origin: bottom center;
+	vertical-align: top;
+	text-decoration: none;
+	margin: 2em 1em 0;
+	line-height: 1.2;
+	padding-top: 0.1em; /* Prevents text from making a bump in the focus box  */
+}
+.book .popular {
+    position: absolute;
+    margin: -0.3em 0 0 -4.6em;
+    font-size: 1.75em;
+    color: gold;
+    text-shadow: 0 0 0.1em rgba(0,0,0,0.75);
+    transition: all 1s;
+    opacity: 0;
+    z-index: 1;
+}
+.book.isPopular:not(.isLoading) .popular {
+	opacity: 1;
+}
+.book .spinner {
+	display: none;
+	color: rgba(0, 0, 0, 0.07);
+	font-size: 6em;
+	margin-left: -0.7em;
+}
+.book.isLoading .spinner {
+	display: inline-block;
+}
+.booksSection .gradientBackground {
+	background: repeating-linear-gradient(white, #e4e7ee 12.1em);
+	padding: 0 2vw;
+}
+.book .thumbnail {
+	height: 10em;
+	box-shadow: 0.1em -0.2em 1em rgba(0,0,0,0.4);
+	vertical-align: top;
+	transition: all 1s;
+	opacity: 1; 
+	width: 6.7em;
+	float: left;
+	margin-right: 0.5em;
+}
+.book.isLoading .thumbnail{
+	opacity: 0;
+}
+.book .title {
+	font-weight: bold;
+}
+.book .author {
+	font-style: italic;
+}
+.book .title,
+.book .author,
+.book .year {
+	font-size:0.9em;
+	vertical-align: top;
+}
+.book:not(.isLoading):hover,
+.book:focus {
+	transform: scale(1.1);
+	cursor: pointer;
+}
+.book:hover .title,
+.book:focus .title,
+.book:hover .author,
+.book:focus .author,
+.book:hover .year,
+.book:focus .year {
+	color: black;
+}
+
+#books>.spinner {
+	color: rgba(0, 0, 0, 0.07);
+	font-size: 100px;
+	display: none;
+}
+.loadingBooks #books>.spinner {
+	display: block;
+}
+
+.showMoreContainer {
+	padding: 2em;
+	background: linear-gradient(white, #e4e7ee);
+}
+
+.spinner i  {
+	animation-name: spin; 
+	animation-duration: 4000ms; 
+	animation-iteration-count: infinite; 
+	animation-timing-function: linear;
+}
+
+@keyframes spin {
+	from { transform: rotate(0deg) }
+	to { transform: rotate(360deg) }
+}
