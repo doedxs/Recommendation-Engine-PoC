@@ -48,7 +48,7 @@
 				})
 				.wrap('<div class="doe_droplist-wrapper"></div>')
 			;
-			$('<div class="doe_droplist-styled"></div>').insertBefore($select);
+			$('<div class="doe_droplist-styled" aria-hidden="true"></div>').insertBefore($select);
 			if ($select.attr('id')) {
 				$select.parent().attr('id', $select.attr('id')+'_wrapper');
 			}
