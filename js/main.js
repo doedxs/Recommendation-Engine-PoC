@@ -143,15 +143,20 @@
 			url: 'http://ec2-52-71-240-15.compute-1.amazonaws.com:8000/events.json?limit=-1&entityType=user&entityId=' + $userList.val() + '&accessKey=MReY8wsp-JlKsjFTYVhnusOzaU_qkSH69TDxPJ2RKJotreQnFqk5KP89IA3APc6c',
 			type: 'get',
 			success: function(response) {
-				$('body').removeClass('loadingBooks');
 				history = response;
-				onComplete();
+				done();
 			},
 			error: function(error) {
 				console.log('HISTORY API UNREACHABLE');
+				history = [];
+				done();
 			},
 			timeout: 3000 // Let's not wait around if the API is offline
 		});
+		function done() {
+			$('body').removeClass('loadingBooks');
+			onComplete();
+		}
 	}
 
 	function showResultsNextPage() {
