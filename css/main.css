@@ -171,14 +171,17 @@ header {
 	padding-top: 0.1em; /* Prevents text from making a bump in the focus box  */
 }
 .book .popular {
-    position: absolute;
-    margin: -0.3em 0 0 -4.6em;
-    font-size: 1.75em;
-    color: gold;
-    text-shadow: 0 0 0.1em rgba(0,0,0,0.75);
-    transition: all 1s;
+	position: absolute;
+    margin: -0.9em 0 0 -10em;
+    font-size: 0.8em;
+    background-color: #ffee91;
     opacity: 0;
     z-index: 1;
+    color: #6b5b02;
+    padding: 0.3em 0.5em;
+    border-radius: 1em;
+    box-shadow: 0.1em 0.1em 0.25em rgba(0,0,0,0.25);
+    text-transform: uppercase;
 }
 .book.isPopular:not(.isLoading) .popular {
 	opacity: 1;
