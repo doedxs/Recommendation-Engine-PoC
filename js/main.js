@@ -1,6 +1,7 @@
 (function() {
+	var apiProtocol = window.location.protocol == 'file:' ? 'http:' : '';
 	var $toggleApi = $('.toggleApi');
-	var suggestionsApi = 'http://ec2-52-71-240-15.compute-1.amazonaws.com:8000/queries.json';
+	var suggestionsApi = apiProtocol + '//ec2-52-71-240-15.compute-1.amazonaws.com:8000/queries.json';
 	var $booksSection = $('.booksSection');
 	var $books = $('#books');
 	var $bookTemplate = $('.booksSection .template.book');
@@ -140,7 +141,7 @@
 
 	function getHistory(onComplete) {
 		$.ajax({
-			url: 'http://ec2-52-71-240-15.compute-1.amazonaws.com:8000/events.json?limit=-1&entityType=user&entityId=' + $userList.val() + '&accessKey=MReY8wsp-JlKsjFTYVhnusOzaU_qkSH69TDxPJ2RKJotreQnFqk5KP89IA3APc6c',
+			url: apiProtocol + '//ec2-52-71-240-15.compute-1.amazonaws.com:8000/events.json?limit=-1&entityType=user&entityId=' + $userList.val() + '&accessKey=MReY8wsp-JlKsjFTYVhnusOzaU_qkSH69TDxPJ2RKJotreQnFqk5KP89IA3APc6c',
 			type: 'get',
 			success: function(response) {
 				history = response;
@@ -215,7 +216,7 @@
 			.attr('href', book.url)
 			.find('.spinner').remove()
 		;
-		$book.find('.title').text(book.title.length>55 ? book.title.substr(0,53)+'...' : book.title);
+		$book.find('.title').text(book.title.length>40 ? book.title.substr(0,38)+'...' : book.title);
 		$book.find('.author').text(book.author ? book.author:'');
 		$book.find('.year').text(book.year ? book.year:'');
 		$book.find('.thumbnail').attr('src', book.thumbnail);
@@ -224,7 +225,7 @@
 	function getBookInfo(isbn, callback, useAlternateApi) {
 		// Looks up full book info from a third party api
 		var book = { isbn: isbn };
-		var emptyThumbnail = "https://d1csarkz8obe9u.cloudfront.net/posterpreviews/book-cover-flyer-template-6bd8f9188465e443a5e161a7d0b3cf33.jpg?ts=1456287935";
+		var emptyThumbnail = "images/blank-cover.jpg";
 		var info;
 		var url = useAlternateApi ? 
 			'https://openlibrary.org/api/books?bibkeys=ISBN:' + isbn + '&jscmd=details&format=json'
@@ -248,7 +249,7 @@
 								info.thumbnail_url.replace('-S.jpg','-M.jpg') : emptyThumbnail
 							;
 							book.url = info.info_url;
-							book.year = info.details.publish_date;
+							book.year = info.details.publish_date.slice(-4);
 							book.author = info.details.authors ? info.details.authors[0].name : '';
 						} else {
 							book = null;
