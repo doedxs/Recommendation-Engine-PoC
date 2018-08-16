@@ -2,6 +2,8 @@
 
 	var apiProtocol = window.location.protocol == 'file:' ? 'http:' : '';
 	var recommendationApi = apiProtocol + '//ec2-52-71-240-15.compute-1.amazonaws.com:8000/queries.json';
+	var apiLog;
+	var $apiErrors = $('#apiErrors');
 
 	window.API = {
 		getUsers: function(onSuccess, onError) {
@@ -12,10 +14,11 @@
 			get(
 				'https://s3.amazonaws.com/prc.pio.doe/prc_challengelevels.json',
 				function(response) {
-					onSuccess(response['challenge-level'])
+					onSuccess(response['challenge-level']);
 				},
 				function(error) {
-					onSuccess(mockData('levels')['challenge-level'])
+					onSuccess(mockData('levels')['challenge-level']);
+					logApiError('Challenge levels list');
 				}			
 			)
 		},
@@ -33,10 +36,11 @@
 				recommendationApi,
 				postData,
 				function(response) {
-					onSuccess(response)
+					onSuccess(response);
 				},
 				function(error) {
-					onSuccess(mockData('recommendations'))
+					onSuccess(mockData('recommendations'));
+					logApiError('Recommendations');
 				}
 			)
 		},		
@@ -45,10 +49,12 @@
 			get(
 				apiProtocol + '//ec2-52-71-240-15.compute-1.amazonaws.com:8000/events.json?limit=-1&entityType=user&entityId=' + userId + '&accessKey=MReY8wsp-JlKsjFTYVhnusOzaU_qkSH69TDxPJ2RKJotreQnFqk5KP89IA3APc6c',
 				function(response) {
-					onSuccess(response)
+					onSuccess(response);
+
 				},
 				function(error) {
-					onSuccess(mockData('history'))
+					onSuccess(mockData('history'));
+					logApiError('Reading history');
 				}			
 			)			
 		},
@@ -60,7 +66,8 @@
 					onSuccess(response.author);
 				},
 				function(error) {
-					onSuccess(mockData('authors').author)
+					onSuccess(mockData('authors').author);
+					logApiError('Authors list');
 				}
 			)
 		},
@@ -87,10 +94,11 @@
 				recommendationApi,
 				postData,
 				function(response) {
-					onSuccess(response)
+					onSuccess(response);
 				},
 				function(error) {
 					onSuccess(mockData('authorBooks'))
+					logApiError('Author recommendations');
 				}
 			)
 		},
@@ -102,7 +110,8 @@
 					onSuccess(response.genre);
 				},
 				function(error) {
-					onSuccess(mockData('genres').genre)
+					onSuccess(mockData('genres').genre);
+					logApiError('Genres list');
 				}
 			)
 		},		
@@ -129,10 +138,11 @@
 				recommendationApi,
 				postData,
 				function(response) {
-					onSuccess(response)
+					onSuccess(response);
 				},
 				function(error) {
-					onSuccess(mockData('genreBooks'))
+					onSuccess(mockData('genreBooks'));
+					logApiError('Genre recommendations');
 				}
 			)
 		},
@@ -269,6 +279,19 @@
 		catch(e){
 			return '';
 		}
+	}
+
+	function logApiError(apiName) {
+		if (!apiLog) {
+			apiLog = [];
+			$apiErrors.click(function() {
+				alert('FAILED API CALLS:\n\n' + apiLog.join('\n'));
+				apiLog = [];
+				$apiErrors.hide();
+			})
+		}
+		apiLog.push(apiName + ' (cached data in use)');
+		$apiErrors.show().text(apiLog.length + ' API error(s)');
 	}
 
 	function mockData(type) {

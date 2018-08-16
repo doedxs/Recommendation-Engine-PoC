@@ -70,32 +70,19 @@ header {
 	height: 4em;
 }
 
-.toggleApi {
-	visibility: hidden;
+#apiErrors {
+	display: none;
 	position: absolute;
 	right: 0;
 	top: 0;
 	margin: 10px;
-	padding: 0.25em 1em;
-	color: white;
-	border-radius: 100px;
-	cursor: pointer;
-	display: inline-block;
 	background-color: #dc0000;
-	font-family: sans-serif;
-	letter-spacing: initial;
-	font-size: 0.8em;
+	padding: 0.25em 0.75em;
+	color: white;
+	border-radius: 1em;
+	cursor: pointer;
+	font-size: 0.9em;
 }
-.toggleApi.on {
-	background-color: rgba(255,255,255,0.25);
-	opacity: 0.5;		
-}	
-.toggleApi:after {
-	content: "API Offline";
-}		
-.toggleApi.on:after {
-	content: "API Online";
-}	
 
 .showMore {
 	font-size: inherit;

@@ -11,7 +11,6 @@
 	];
 	var $authorList;
 	var $genreList;
-	var $toggleApi = $('.toggleApi');
 	var $userList = $('#userList');
 	var $levelList = $('#levelsList');
 	var pageSize = 5;
@@ -47,7 +46,7 @@
 	}
 
 	function addSection(section) {
-		section.$ = $($('#bookResultsTemplate').html()).appendTo($('#bookResults'));
+		section.$ = $($('#bookResultsTemplate').html()).appendTo('#bookResults');
 		section.$.attr('data-type', section.id);
 		section.$.find('.title').text(section.title);
 		if (typeof(section.init)=='function') {
