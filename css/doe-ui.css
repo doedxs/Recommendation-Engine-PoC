@@ -47,6 +47,7 @@ select:focus,
 	top: 0;
 	right: 0;
 	bottom: 0;
+	white-space: nowrap;
 }
 .doe_droplist-styled:after {
 	font-family: 'Font Awesome 5 Free';

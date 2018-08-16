@@ -12,11 +12,6 @@ body * {
 	box-sizing: border-box;
 }
 
-/* Hides "Powered by" footer when page is hosted */
-div[style*="9999999;"] * {
-    display: none !important;
-}
-
 img {
 	border: 0;
 }
@@ -32,7 +27,7 @@ button,select {
 }
 
 @media (min-width: 1400px) {
-	html { font-size: 1.15vw; }
+	html { font-size: 1vw; }
 }
 
 @media (max-width: 600px) {
@@ -40,17 +35,30 @@ button,select {
 }
 
 @media (max-width: 500px) {
-	.suggestionsSection { font-size: 3.2vw; }
+	.booksSection { font-size: 3.2vw; }
 }
 
 @media (max-height: 500px) {
 	header { font-size: 2.5vh; }
-	.suggestionsSection { font-size: 3.2vh; }
+	.booksSection { font-size: 3.2vh; }
 }
 
 header {
 	background-color: #003e52;
 	color: white;
+}
+
+#authorList, #genreList, #levelsList {
+    font-size: 1rem;
+    position: absolute;
+    right: 1em;
+}
+
+@media (max-width: 750px) {
+	#authorList, #genreList {
+	    position: static;
+	    width: 75%;
+	}
 }
 
 .gef-corporate-logo__link {
@@ -63,6 +71,7 @@ header {
 }
 
 .toggleApi {
+	visibility: hidden;
 	position: absolute;
 	right: 0;
 	top: 0;
@@ -88,11 +97,11 @@ header {
 	content: "API Online";
 }	
 
-#showMore {
+.showMore {
 	font-size: inherit;
 	border: none;
 	line-height: 2;
-	padding: 0 3em;
+	padding: 0 2em;
 	border: none;
 	border-radius: 0.25em;
 	cursor: pointer;
@@ -101,24 +110,29 @@ header {
 	display: none;
 	font-family: inherit;
 }
-#showMore:hover {
+.showMore:hover {
 	background-color: #0072a1;
 }
-#showMore:active {
+.showMore:active {
 	background-color: white;
 	color: #003e52;
 }
 
-.showMoreContainer .noBooksFound {
+.booksSection .noBooksFound {
 	display: none;
-	font-size: 1.2em;
 }
-.showMoreContainer .noBooksFound:before {
+.booksSection.hasNoBooks .noBooksFound {
+	display: inline-block;
+}
+.booksSection.hasNoBooks .gradientBackground {
+	display: none;
+}
+.booksSection.hasNoBooks .noBooksFound:before {
     content: '\f071';
     display: block;
     border-radius: 50%;
     font-size: 5em;
-    opacity: 0.25;
+    opacity: 0.15;
     line-height: 1.25;
     font-family: 'Font Awesome 5 Free';
     font-weight: bold; /* Font doesn't show without this! */
@@ -127,7 +141,7 @@ header {
 .profileCircle {
 	margin-top: 0.1em;
 	display: inline-block;
-	font-size: 5em;
+	font-size: 4em;
 	color: #b8d6e0;
 	width: 1.5em;
 	line-height: 1.5;
@@ -137,14 +151,8 @@ header {
 
 
 #userList_wrapper {
-	font-size: 2em;
-	margin: 0.25em;
-}
-
-#modeList_wrapper {
-	background-color: white;
 	font-size: 1.5em;
-	margin-top: 0.5em;
+	margin: 0.25em;
 }
 
 .booksSection {
@@ -153,9 +161,6 @@ header {
 	text-align: center;
 	background-color: white;
 }
-.template.book {
-	display: none !important;
-}
 
 
 .book {
@@ -163,10 +168,10 @@ header {
 	width: 13em;
 	text-align: left;
 	transition: transform 0.25s;
-	transform-origin: bottom center;
+	transform-origin: center;
 	vertical-align: top;
 	text-decoration: none;
-	margin: 2em 1em 0;
+	margin: 1em;
 	line-height: 1.2;
 	padding-top: 0.1em; /* Prevents text from making a bump in the focus box  */
 }
@@ -177,11 +182,10 @@ header {
     background-color: #ffee91;
     opacity: 0;
     z-index: 1;
-    color: #6b5b02;
+    color: black;
     padding: 0.3em 0.5em;
     border-radius: 1em;
     box-shadow: 0.1em 0.1em 0.25em rgba(0,0,0,0.25);
-    text-transform: uppercase;
 }
 .book.isPopular:not(.isLoading) .popular {
 	opacity: 1;
@@ -195,17 +199,22 @@ header {
 .book.isLoading .spinner {
 	display: inline-block;
 }
+.booksSection>.title {
+	font-weight: normal;
+	font-size: 1.3rem;
+}
 .booksSection .gradientBackground {
-	background: repeating-linear-gradient(white, #e4e7ee 12.1em);
+	/*background: repeating-linear-gradient(white, #e4e7ee 12.1em);*/
 	padding: 0 2vw;
+	min-height: 11.1em;
 }
 .book .thumbnail {
-	height: 10em;
-	box-shadow: 0.1em -0.2em 1em rgba(0,0,0,0.4);
+	height: 9em;
+	box-shadow: 0 0 1em rgba(0,0,0,0.4);
 	vertical-align: top;
 	transition: all 1s;
 	opacity: 1; 
-	width: 6.7em;
+	width: 6.2em;
 	float: left;
 	margin-right: 0.5em;
 }
@@ -226,8 +235,11 @@ header {
 }
 .book:not(.isLoading):hover,
 .book:focus {
-	transform: scale(1.1);
+	transform: scale(1.15);
 	cursor: pointer;
+}
+.book:focus {
+	transform: scale(1.1);
 }
 .book:hover .title,
 .book:focus .title,
@@ -238,7 +250,7 @@ header {
 	color: black;
 }
 
-#books>.spinner {
+.books>.spinner {
 	color: rgba(0, 0, 0, 0.07);
 	font-size: 100px;
 	display: none;
@@ -248,7 +260,7 @@ header {
 }
 
 .showMoreContainer {
-	padding: 2em;
+	padding: 1em;
 	background: linear-gradient(white, #e4e7ee);
 }
 

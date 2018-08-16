@@ -1,5 +1,11 @@
 (function() {
 
+	window.DOE = {
+		droplists: {
+			refresh: setupCustomDroplists
+		}
+	}
+
 	setupCustomDroplists();
 
 	function setupCustomDroplists() {

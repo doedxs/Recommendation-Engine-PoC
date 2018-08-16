@@ -27,43 +27,46 @@
 			</div>
 			<div>
 				<select id="userList" class="doe_droplist"></select>
+				<select id="levelsList"></select>
 			</div>
 		</header>
 
-		<section class="booksSection">
-			<select id="modeList" class="doe_droplist">
-				<option value='suggestions'>Recommended books</option>
-				<option value='history'>My reading history</option>
-			</select>
-			<div class="gradientBackground">
-				<div id="books">
-					<div class="spinner">
-						<i class="fas fa-circle-notch"></i>
+		<section id="bookResults"></section>
+
+		<script id="bookResultsTemplate" type="text/html">
+			<section class="booksSection">
+				<h2 class='title'></h2>
+				<div class="gradientBackground">
+					<div class="books">
+						<div class="spinner">
+							<i class="fas fa-circle-notch"></i>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<div class="showMoreContainer">
-				<button id="showMore" type="button">Show more...</button>
-				<div class="noBooksFound">No books found</div>
-			</div>
+				<div class="showMoreContainer">
+					<button class="showMore" type="button">Show more</button>
+					<div class="noBooksFound">No books found</div>
+				</div>
+			</section>
+		</script>
 
-			<!-- BOOK TEMPLATE: Clone to use it and remove "template" class to make it visible  -->
-			<a class="template book isLoading" target="_blank" >
+		<script id="bookTemplate" type="text/html">
+			<a class="book isLoading" target="_blank" >
 				<div class="spinner">
 					<i class="fas fa-circle-notch"></i>
 				</div>
 				<span class="popular">Popular</span>
-				<img class='thumbnail' alt='' />
-				<span class='title'></span><br/>
-				<span class='author'></span><br/>
-				<span class='year'></span>
+				<img class="thumbnail" alt="" />
+				<span class="title"></span><br/>
+				<span class="author"></span><br/>
+				<span class="year"></span>
 			</a>
-			<!-- End of template -->
-		</section>
+		</script>
 
 		<script type="text/javascript" src="js/polyfills.js"></script>
 		<script type="text/javascript" src="js/doe-ui.js"></script>
+		<script type="text/javascript" src="js/api.js"></script>
 		<script type="text/javascript" src="js/main.js"></script>
 	</body>
 </html>

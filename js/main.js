@@ -1,64 +1,102 @@
 (function() {
-	var apiProtocol = window.location.protocol == 'file:' ? 'http:' : '';
-	var $toggleApi = $('.toggleApi');
-	var suggestionsApi = apiProtocol + '//ec2-52-71-240-15.compute-1.amazonaws.com:8000/queries.json';
-	var $booksSection = $('.booksSection');
-	var $books = $('#books');
-	var $bookTemplate = $('.booksSection .template.book');
-	var $showMore = $('#showMore');
-	var $noBooksFound = $('.noBooksFound');
-	var $userList = $('#userList');
-	var $modeList = $('#modeList');
-	var pageSize = 5;
-	var books;
-	var history;
-	var users = [
-		// "books" contains offline data for when api not available 
-		{ id:'SEARCH', name:'Search...'},
-		{ id:'LUAN.THAI', name:'Luan Thai', books: {"itemScores": [{"item": "9781906427795", "score": 32.744484 }, {"item": "9781407109374", "score": 31.76931 }, {"item": "9781741690385", "score": 29.515799 }, {"item": "9781742835204", "score": 23.795525 }, {"item": "9780141321271", "score": 23.74041 }, {"item": "9781741690361", "score": 23.567284 }, {"item": "9781741693201", "score": 23.190563 }, {"item": "9781906427504", "score": 22.270454 }, {"item": "9780140563870", "score": 19.242 }, {"item": "9781741660739", "score": 19.080948 }, {"item": "9781741693232", "score": 19.049526 }, {"item": "9781420204933", "score": 18.989965 }, {"item": "9780980348804", "score": 18.923296 }, {"item": "9780140378450", "score": 18.721355 } ] } },
-		{ id:'EMILY.GREENE7', name:'Emily Greene7', books: {"itemScores": [{"item": "9780143307136", "score": 43.288155 }, {"item": "9780857985545", "score": 43.052124 }, {"item": "9780857985644", "score": 39.428455 }, {"item": "9781449436353", "score": 36.8583 }, {"item": "9781921848001", "score": 36.67954 }, {"item": "9781742833545", "score": 36.43331 }, {"item": "9780061996610", "score": 35.871857 }, {"item": "9780857982162", "score": 34.86473 }, {"item": "9781742755403", "score": 34.534225 }, {"item": "9780857985033", "score": 33.61505 }, {"item": "9781760153038", "score": 33.420876 }, {"item": "9780857985484", "score": 33.30102 }, {"item": "9781743627419", "score": 32.704426 }, {"item": "9781784753894", "score": 31.746603 }, {"item": "9781449436346", "score": 31.581043 }, {"item": "9780061944390", "score": 31.319159 }, {"item": "9781407120690", "score": 31.277494 }, {"item": "9781449425661", "score": 30.946484 }, {"item": "9781449407186", "score": 30.784712 }, {"item": "9781449427771", "score": 30.441566 } ] } },
-		{ id:'MEI.YUSHITA', name:'Mei Yushita' },
-		{ id:'KEVIN.DUONG3', name:'Kevin Duong3' },
-		{ id:'MALCOLM.BLAKEY', name:'Malcolm Blakey' },
-		{ id:'HARLEM.ARTHUR', name:'Harlem Arthur' },
-		{ id:'NATALIE.DUONG3', name:'Natalie Duong3' },
-		{ id:'DANIELLE.STRYDOM', name:'Danielle Strydom' },
-		{ id:'MICHELLE.TIEU', name:'Michelle Tieu' },
-		{ id:'NATASHA.FLAHEY', name:'Natasha Flahey' }
+	var sections = [
+		{ id: 'recommendations', title:'Recommended books'},
+		{ id: 'author', title: 'From authors you might like', init: function(section) {
+			$authorList = $('<select id="authorList"></select>').appendTo(section.$.children('.title'));
+		}},
+		{ id: 'genre', title: 'From genres you might like', init: function(section) {
+			$genreList = $('<select id="genreList"></select>').appendTo(section.$.children('.title'));
+		}},
+		{ id: 'history', title: 'Your reading history'}
 	];
+	var $authorList;
+	var $genreList;
+	var $toggleApi = $('.toggleApi');
+	var $userList = $('#userList');
+	var $levelList = $('#levelsList');
+	var pageSize = 5;
+	var apiData = {};
 
 	start();
 
 	function start() {
-		buildUserList();
-		bindEvents();
+		sections.forEach(function(section) {
+			addSection(section);
+		});
+
+		API.batch(
+			[
+				{ call: API.getUsers, returnKey: 'users' },
+				{ call: API.getLevels, returnKey: 'levels' },
+				{ call: API.getAuthors, returnKey: 'authors' },
+				{ call: API.getGenres, returnKey: 'genres' }
+			],
+			function(data) {
+				apiData.users = data.users;
+				apiData.levels = data.levels;
+				apiData.authors = data.authors;
+				apiData.genres = data.genres;
+				buildUserList();
+				buildLevelsList();
+				buildAuthorList();
+				buildGenreList();
+				$userList.trigger('setValue', apiData.users[1].id);
+				selectUser();
+			}
+		);
 	}
 
-	function bindEvents() {
-		$showMore.click(function() {showResultsNextPage()});
-		$toggleApi.click(function() {
-			$toggleApi.toggleClass('on');
-			selectUser();
+	function addSection(section) {
+		section.$ = $($('#bookResultsTemplate').html()).appendTo($('#bookResults'));
+		section.$.attr('data-type', section.id);
+		section.$.find('.title').text(section.title);
+		if (typeof(section.init)=='function') {
+			section.init(section);
+		}
+		section.$.find('.showMore').click(function() {
+			showResultsNextPage(section);
 		});
-		$userList.change(function() {
-			$modeList.trigger('setValue', 'suggestions');
-			selectUser();
-		});
-		$modeList.change(function() {
-			selectUser();
-		});
-	}
+	}	
 
 	function buildUserList() {
-		users.forEach(function(user) {
+		apiData.users.forEach(function(user) {
 			$userList.append('<option value="' + user.id + '">' + user.name + '</option>');
 			if (user.id == 'SEARCH') {
 				var divider = Array(8).join("&#x2500;");
 				$userList.append('<option disabled role=separator>' + divider + '</option>');
 			}
 		});
-		$userList.trigger('setValue', users[1].id);
-		selectUser();
+		$userList.change(function() {
+			selectUser();
+		});
+	}
+
+	function buildLevelsList() {
+		$levelList.append('<option value="">All levels</option>');
+		apiData.levels.forEach(function(level) {
+			$levelList.append('<option value="' + level + '">Level ' + level + '</option>');
+		});
+		$levelList.change(function() {
+			getBooks();
+		});
+	}
+
+	function buildAuthorList() {
+		apiData.authors.forEach(function(author){
+			$authorList.append('<option>' + author + '</option>')
+		});
+		$authorList.change(function() {
+			getBooksForSection($userList.val(), sections[1])
+		});
+	}
+
+	function buildGenreList() {
+		apiData.genres.forEach(function(genre){
+			$genreList.append('<option>' + genre + '</option>')
+		});
+		$genreList.change(function() {
+			getBooksForSection($userList.val(), sections[2])
+		});
 	}
 
 	function selectUser() {
@@ -69,11 +107,11 @@
 				var user = getUserById(id);
 				if (!user) {
 					id = id.replace(/</g, ''); // Ensures no script injection is possible
-					users.push({ id: id, name: id });
+					apiData.users.push({ id: id, name: id });
 					$userList.append('<option value="' + id + '">' + id + '</option>');
 				}
 			} else {
-				id = users[1].id;
+				id = apiData.users[1].id;
 			}
 			$userList.trigger('setValue', id);
 		}
@@ -81,103 +119,107 @@
 	}
 
 	function getUserById(id) {
-		return users.find(function(user){return user.id === id});
+		return apiData.users.find(function(user){return user.id === id});
 	}
 
-	function clearBooks() {
-		$books.find('.book').remove();
-		$showMore.hide();
-		$('body').addClass('loadingBooks');
+	function clearSection(section) {
+		section.$.find('.book').remove();
+		section.$.find('.showMore').hide();
 	}
 
-	function getBooks(id) {
-		clearBooks();
-		if ($modeList.val()=='history') {
-			getHistory(function(){
-				books = [];
-				history.forEach(function(item) {
-					if (item.entityId == $userList.val()) {
-						books.push({ item: item.targetEntityId, score: 1})
-					}
-				});
-				showResultsNextPage();
-			});
-		} else {
-			if (!$toggleApi.hasClass('on')) {
-				getCachedData(id);
-				return;
-			}
-			$.ajax({
-				url: suggestionsApi,
-				data: $modeList.val() == 'popular' ? '' : JSON.stringify({'user': id}),
-				type: 'post',
-				dataType: 'json',
-				success: function(response) {			
-					books = response.itemScores;
-					showResultsNextPage();
+	function getBooks(userId) {
+		sections.forEach(function(section) {
+			getBooksForSection(userId, section)
+		})
+	}
+
+	function getBooksForSection(userId, section) {
+		clearSection(section);
+
+		if (section.id == 'recommendations') {
+			API.getRecommendations(
+				userId,
+				$levelList.val(),
+				function(response) {
+					section.books = response.itemScores;
+					showResultsNextPage(section);
+				}
+			);				
+		}
+
+		if (section.id == 'author') {
+			API.getAuthorBooks(
+				userId,
+				$levelList.val(),
+				$authorList.val(),
+				function(response) {
+					section.books = response.itemScores;
+					showResultsNextPage(section);
 				},
-				error: function(error) {
-					alert('BOOKS API UNREACHABLE.\rRecommendation Engine for Books (PRC) is unreachable. Local cached data is being displayed instead.');
-					$toggleApi.click(); // Switch over to cached data
+				function(error) {
+					toggleNoBooksWarning(section, true);
+				}
+			);				
+		}
+
+		if (section.id == 'genre') {
+			API.getGenreBooks(
+				userId,
+				$levelList.val(),
+				$genreList.val(),
+				function(response) {
+					section.books = response.itemScores;
+					showResultsNextPage(section);
 				},
-				timeout: 3000 // Let's not wait around if the API is offline
-			});
+				function(error) {
+					toggleNoBooksWarning(section, true);
+				}
+			);				
+		}
+
+		if (section.id == 'history') {
+			API.getHistory(
+				userId,
+				function(response) {
+					section.books = [];
+					response.forEach(function(item) {
+						if (item.entityId == userId) {
+							section.books.push({ item: item.targetEntityId, score: 1})
+						}
+					});
+					showResultsNextPage(section);
+				},
+				function(error) {
+					toggleNoBooksWarning(section, true);
+				}
+			);				
 		}
 	}
 
-	function getCachedData(id) {
-		// Some cached api responses have been added into the
-		// "books" column of the "users" json. This is used
-		// when the api is unavailable.
-		var user = getUserById(id);
-		$('body').removeClass('loadingBooks');
-		if (user.books) {
-			books = Object.create(user.books.itemScores);
-		} else {
-			books = []
-		}
-		showResultsNextPage();
-	}
-
-	function getHistory(onComplete) {
-		$.ajax({
-			url: apiProtocol + '//ec2-52-71-240-15.compute-1.amazonaws.com:8000/events.json?limit=-1&entityType=user&entityId=' + $userList.val() + '&accessKey=MReY8wsp-JlKsjFTYVhnusOzaU_qkSH69TDxPJ2RKJotreQnFqk5KP89IA3APc6c',
-			type: 'get',
-			success: function(response) {
-				history = response;
-				done();
-			},
-			error: function(error) {
-				console.log('HISTORY API UNREACHABLE');
-				history = [];
-				done();
-			},
-			timeout: 3000 // Let's not wait around if the API is offline
-		});
-		function done() {
-			$('body').removeClass('loadingBooks');
-			onComplete();
-		}
-	}
-
-	function showResultsNextPage() {
+	function showResultsNextPage(section) {
 		$('body').removeClass('loadingBooks');
 		for (var i = 0; i < pageSize; i++) {
-			showNextResult()
+			showNextResult(section)
 		}
 	}
 
-	function refreshShowMoreButton() {
-		$showMore.css('display', books.length ? 'inline-block':'none');
-		$noBooksFound.css('display', !books.length && !$books.find('.book').length ? 'inline-block':'none');
+	function refreshShowMoreButton(section) {
+		section.$.find('.showMore').css('display', section.books.length ? 'inline-block':'none');
+		toggleNoBooksWarning(section, !section.$.find('.book').length);
 	}
 
-	function showNextResult() {
-		var nextBookToGet = getNextBook();
-		refreshShowMoreButton();
+	function toggleNoBooksWarning(section, flag) {
+		if (section.$.hasClass('hasNoBooks') != flag) {
+			section.$.toggleClass('hasNoBooks');
+		}
+	}
+
+	function showNextResult(section) {
+		var nextBookToGet = getNextBook(section);
+		refreshShowMoreButton(section);
 		if (nextBookToGet) {
-			var $book = addBookToPage(); // Note: Book appears with spinner until values are set		
-			getBookInfo(nextBookToGet.item, function(book) {
+			var $book = addBookToPage(section); // Note: Book appears with spinner until values are set		
+			API.getBook(nextBookToGet.item, function(book) {
 				if (book) {
 					setBookValues($book, book);
 					if (!nextBookToGet.score) {
@@ -191,24 +233,19 @@
 				} else {
 					console.log('ISBN ' + nextBookToGet.item + ' cannot be found!');
 					$book.remove();
-					showNextResult();
+					showNextResult(section);
 				}
 			})	
-			$booksSection.show();				
 		}			
 	}
 
-	function getNextBook() {
+	function getNextBook(section) {
 		// Returns next book from OUR api data
-		return books.splice(0,1)[0]; // Returns next book and removes from array
+		return section.books.splice(0,1)[0]; // Returns next book and removes from array
 	}
 
-	function addBookToPage() {
-		return $bookTemplate
-			.clone()
-			.appendTo($books)
-			.removeClass('template')
-		;
+	function addBookToPage(section) {
+		return $($('#bookTemplate').html()).appendTo(section.$.find('.books'))
 	}
 
 	function setBookValues($book, book) {
@@ -220,63 +257,6 @@
 		$book.find('.author').text(book.author ? book.author:'');
 		$book.find('.year').text(book.year ? book.year:'');
 		$book.find('.thumbnail').attr('src', book.thumbnail);
-	}
-
-	function getBookInfo(isbn, callback, useAlternateApi) {
-		// Looks up full book info from a third party api
-		var book = { isbn: isbn };
-		var emptyThumbnail = "images/blank-cover.jpg";
-		var info;
-		var url = useAlternateApi ? 
-			'https://openlibrary.org/api/books?bibkeys=ISBN:' + isbn + '&jscmd=details&format=json'
-			:
-			'https://www.googleapis.com/books/v1/volumes?q=isbn:' + isbn + '&key=AIzaSyDUZxL5Bycv3qiWOtMfmmqSLWcZrGARUBk'
-		;
-		$.ajax({
-			url: url,
-			type: 'get',
-			success: function(response) {
-				if (!useAlternateApi && !response.totalItems) {
-					// If first api (Google) returns no book info,
-					// use second api.
-					getBookInfo(isbn, callback, true);
-				} else {
-					if (useAlternateApi) {
-						info = response['ISBN:' + isbn];
-						if (info) {
-							book.title = info.details.title;
-							book.thumbnail = info.thumbnail_url ? 
-								info.thumbnail_url.replace('-S.jpg','-M.jpg') : emptyThumbnail
-							;
-							book.url = info.info_url;
-							book.year = info.details.publish_date.slice(-4);
-							book.author = info.details.authors ? info.details.authors[0].name : '';
-						} else {
-							book = null;
-						}
-					} else {
-						info = response.items[0].volumeInfo;
-						book.title = info.title;
-						book.thumbnail = info.imageLinks ?
-							info.imageLinks.thumbnail :	emptyThumbnail
-						;
-						book.url = info.infoLink;
-						book.year = info.publishedDate;
-						book.author = info.authors ? info.authors[0] : '';
-					}
-					callback(book);
-				}
-			},
-			error: function(error) {
-				console.log('PAGE INFO API ERROR:');
-				console.log(error);
-				if (!useAlternateApi) {
-					getBookInfo(isbn, callback, true);
-				} else {
-					callback(null);
-				}
-			}
-		});
 	}
 
 })()
