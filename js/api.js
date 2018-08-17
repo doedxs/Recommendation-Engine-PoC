@@ -26,11 +26,11 @@
 		getRecommendations: function(userId, level, onSuccess, onError) {
 			var postData = {'user': userId};
 			if (level) {
-				postData.fields = {
+				postData.fields = [{
 			      "name": "challenge-level",
 			      "values": [level],
 			      "bias": -1 
-			    }
+			    }]
 			}
 			post(
 				recommendationApi,
